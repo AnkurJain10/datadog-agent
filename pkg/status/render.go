@@ -18,7 +18,14 @@ import (
 	"github.com/DataDog/datadog-agent/pkg/config"
 )
 
-var fmap = Textfmap()
+var fmap template.FuncMap
+
+func init() {
+	fmap = Textfmap()
+	fmap["percent"] = func(v float64) string {
+		return fmt.Sprintf("%02.1f", v*100)
+	}
+}
 
 // FormatStatus takes a json bytestring and prints out the formatted statuspage
 func FormatStatus(data []byte) (string, error) {
@@ -36,6 +43,7 @@ func FormatStatus(data []byte) (string, error) {
 	dogstatsdStats := stats["dogstatsdStats"]
 	jmxStats := stats["JMXStatus"]
 	logsStats := stats["logsStats"]
+	apmStats := stats["apmStats"]
 	dcaStats := stats["clusterAgentStatus"]
 	endpointsInfos := stats["endpointsInfos"]
 	inventoriesStats := stats["inventories"]
@@ -47,6 +55,7 @@ func FormatStatus(data []byte) (string, error) {
 	renderStatusTemplate(b, "/forwarder.tmpl", forwarderStats)
 	renderStatusTemplate(b, "/endpoints.tmpl", endpointsInfos)
 	renderStatusTemplate(b, "/logsagent.tmpl", logsStats)
+	renderStatusTemplate(b, "/trace-agent.tmpl", apmStats)
 	renderStatusTemplate(b, "/aggregator.tmpl", aggregatorStats)
 	renderStatusTemplate(b, "/dogstatsd.tmpl", dogstatsdStats)
 	if config.Datadog.GetBool("cluster_agent.enabled") || config.Datadog.GetBool("cluster_checks.enabled") {
