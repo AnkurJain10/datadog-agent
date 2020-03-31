@@ -14,6 +14,10 @@ import (
 var (
 	// LogsExpvars contains metrics for the logs agent.
 	LogsExpvars *expvar.Map
+	// UseHTTP is the use of HTTP transport
+	UseHTTP = expvar.Int{}
+	// TlmUseHTTP is the use of HTTP transport
+	TlmUseHTTP = telemetry.NewGauge("logs", "use_http", nil, "Use of HTTP transport")
 	// LogsDecoded is the total number of decoded logs
 	LogsDecoded = expvar.Int{}
 	// TlmLogsDecoded is the total number of decoded logs
@@ -57,6 +61,7 @@ var (
 
 func init() {
 	LogsExpvars = expvar.NewMap("logs-agent")
+	LogsExpvars.Set("UseHTTP", &UseHTTP)
 	LogsExpvars.Set("LogsDecoded", &LogsDecoded)
 	LogsExpvars.Set("LogsProcessed", &LogsProcessed)
 	LogsExpvars.Set("LogsSent", &LogsSent)

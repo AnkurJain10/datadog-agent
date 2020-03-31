@@ -62,6 +62,10 @@ func Start() error {
 		status.AddGlobalError(invalidEndpoints, message)
 		return errors.New(message)
 	}
+	if endpoints.UseHTTP {
+		metrics.UseHTTP.Set(1)
+		metrics.TlmUseHTTP.Set(1)
+	}
 
 	// setup the status
 	status.Init(&isRunning, endpoints, sources, metrics.LogsExpvars)
