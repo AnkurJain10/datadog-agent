@@ -423,7 +423,6 @@ func (agg *BufferedAggregator) pushSeries(start time.Time, series metrics.Series
 func (agg *BufferedAggregator) sendSeries(start time.Time, series metrics.Series, waitForSerializer bool) {
 	recurrentSeriesLock.Lock()
 	// Adding recurrentSeries to the flushed ones
-	log.Info("LETS SEE")
 	for _, extra := range recurrentSeries {
 		if extra.Host == "" {
 			extra.Host = agg.hostname
