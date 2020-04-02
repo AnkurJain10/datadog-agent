@@ -375,6 +375,10 @@ func (agg *BufferedAggregator) addSample(metricSample *metrics.MetricSample, tim
 	metricSample.Tags = util.SortUniqInPlace(filteredTags)
 	//log.Info("add sample::AFTER::TAGS:" + strings.Join(metricSample.Tags, ","))
 
+	if config.Datadog.GetBool("hostname.blacklist") {
+		metricSample.Host = ""
+	}
+
 	agg.statsdSampler.addSample(metricSample, timestamp)
 }
 
