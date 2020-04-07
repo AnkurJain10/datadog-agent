@@ -8,6 +8,7 @@ package aggregator
 import (
 	"expvar"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -359,7 +360,25 @@ func (agg *BufferedAggregator) addEvent(e metrics.Event) {
 
 // addSample adds the metric sample
 func (agg *BufferedAggregator) addSample(metricSample *metrics.MetricSample, timestamp float64) {
-	metricSample.Tags = util.SortUniqInPlace(metricSample.Tags)
+	//log.Info("add sample::BEFORE::TAGS:" + strings.Join(metricSample.Tags, ","))
+
+	tagBlacklist := config.Datadog.GetString("tags.blacklist")
+	//log.Info("BLACKLIST: " + tagBlacklist)
+
+	var filteredTags []string
+	for i := range metricSample.Tags {
+		target := strings.Split(metricSample.Tags[i], ":")
+		if !strings.Contains(tagBlacklist, target[0]) {
+			filteredTags = append(filteredTags, metricSample.Tags[i])
+		}
+	}
+	metricSample.Tags = util.SortUniqInPlace(filteredTags)
+	//log.Info("add sample::AFTER::TAGS:" + strings.Join(metricSample.Tags, ","))
+
+	if config.Datadog.GetBool("hostname.blacklist") {
+		metricSample.Host = ""
+	}
+
 	agg.statsdSampler.addSample(metricSample, timestamp)
 }
 
