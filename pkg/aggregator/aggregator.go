@@ -361,7 +361,9 @@ func (agg *BufferedAggregator) addEvent(e metrics.Event) {
 // addSample adds the metric sample
 func (agg *BufferedAggregator) addSample(metricSample *metrics.MetricSample, timestamp float64) {
 	tagBlacklist := config.Datadog.GetString("tags.blacklist")
-	tagWhitelist := config.Datadog.GetString("tags.whitelist")
+	stackTag := config.Datadog.GetString("stack-tag")
+	appTag := config.Datadog.GetString("app-tag")
+
 	var filteredTags []string
 	for i := range metricSample.Tags {
 		target := strings.Split(metricSample.Tags[i], ":")
@@ -369,7 +371,8 @@ func (agg *BufferedAggregator) addSample(metricSample *metrics.MetricSample, tim
 			filteredTags = append(filteredTags, string(metricSample.Tags[i]))
 		}
 	}
-	filteredTags = append(filteredTags, tagWhitelist)
+	filteredTags = append(filteredTags, stackTag)
+	filteredTags = append(filteredTags, appTag)
 	metricSample.Tags = util.SortUniqInPlace(filteredTags)
 	if config.Datadog.GetBool("hostname.blacklist") {
 		metricSample.Host = ""
